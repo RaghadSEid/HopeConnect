@@ -1,0 +1,11 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\config",
+    "\\controllers",
+    "\\models",
+    "\\routes"
+  ],
+  "SelectedNode": "\\models\\notificationModel.js",
+  "PreviewInSolutionExplorer": false
+}
