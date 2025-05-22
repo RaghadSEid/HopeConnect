@@ -1,8 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\images"
+    "\\controllers",
+    "\\images",
+    "\\models",
+    "\\routes"
   ],
-  "SelectedNode": "\\env",
+  "SelectedNode": "\\routes\\logisticsRoutes.js",
   "PreviewInSolutionExplorer": false
 }
