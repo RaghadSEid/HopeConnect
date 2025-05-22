@@ -1,15 +1,19 @@
+﻿// routes/donation.routes.js
 const express = require('express');
 const router = express.Router();
-const donationController = require('../controllers/donationController');
+const donationController = require('../controllers/donationController.js');
 
-router.get('/', donationController.getAllDonations);
-
-router.get('/:id', donationController.getDonationById);
-
+// POST /api/donations
 router.post('/', donationController.createDonation);
 
-router.put('/:id', donationController.updateDonation);
+// GET /api/donations
+router.get('/', donationController.getAllDonations);
 
+
+router.put('/:donation_id', donationController.updateDonationFields);
+
+router.get('/NoImpact', donationController.getDonationsNoImpact);
 
 
 module.exports = router;
+

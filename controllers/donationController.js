@@ -1,42 +1,103 @@
-const Donation = require('../models/donation');
+﻿const Donation = require('../models/donationModel.js');
 
-const donationController = {
-
-    getAllDonations: (req, res) => {
-        Donation.getAll((err, results) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json(results);
+exports.createDonation = async (req, res) => {
+    try {
+        const donationData = req.body;
+        const result = await Donation.createDonation(donationData);
+        res.status(201).json({
+            message: 'Donation created successfully!',
+            donationId: result.insertId
         });
-    },
-
-    getDonationById: (req, res) => {
-        const id = req.params.id;
-        Donation.getById(id, (err, results) => {
-            if (err) return res.status(500).json({ error: err.message });
-            if (results.length === 0) return res.status(404).json({ message: 'Donation not found' });
-            res.json(results[0]);
-        });
-    },
-
-    createDonation: (req, res) => {
-        const data = req.body;
-        Donation.create(data, (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.status(201).json({ message: 'Donation created', donationId: result.insertId });
-        });
-    },
-
-    updateDonation: (req, res) => {
-        const id = req.params.id;
-        const data = req.body;
-        Donation.update(id, data, (err, result) => {
-            if (err) return res.status(500).json({ error: err.message });
-            if (result.affectedRows === 0) return res.status(404).json({ message: 'Donation not found' });
-            res.json({ message: 'Donation updated' });
-        });
-    },
-
-
+    } catch (error) {
+        console.error('Error creating donation:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 };
 
-module.exports = donationController;
+exports.getAllDonations = async (req, res) => {
+    try {
+        const donations = await Donation.getAllDonations();
+        res.status(200).json(donations);
+    } catch (error) {
+        console.error('Error fetching donations:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+exports.getAllDonations = async (req, res) => {
+    try {
+        const { category } = req.query;
+
+        if (category) {
+            const donations = await Donation.getDonationsByCategory(category);
+            return res.status(200).json(donations);
+        }
+
+        const donations = await Donation.getAllDonations();
+        res.status(200).json(donations);
+    } catch (error) {
+        console.error('Error fetching donations:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+exports.getAllDonations = async (req, res) => {
+    try {
+        const { category, donor_id } = req.query;
+
+        if (category) {
+            const donations = await Donation.getDonationsByCategory(category);
+            return res.status(200).json(donations);
+        }
+
+        if (donor_id) {
+            const donations = await Donation.getDonationsByDonor(donor_id);
+            return res.status(200).json(donations);
+        }
+
+        const donations = await Donation.getAllDonations();
+        res.status(200).json(donations);
+    } catch (error) {
+        console.error('Error fetching donations:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
+exports.updateDonationFields = async (req, res) => {
+    const donation_id = req.params.donation_id;
+    const updateFields = req.body;
+
+    try {
+        await Donation.updateDonationFields(donation_id, updateFields);
+
+        if (updateFields.impact_description && updateFields.impact_description.trim() !== "") {
+            const user_id = await Donation.getUserIdByDonationId(donation_id);
+
+            if (user_id) {
+                const message = `Your donation has been disbursed in : ${updateFields.impact_description} please inter your feedback ^_^`;
+                await Donation.createNotification(user_id, message);
+            }
+        }
+
+        res.status(200).json({ message: 'Donation updated successfully.' });
+    } catch (err) {
+        console.error("Error updating donation:", err);
+        res.status(500).json({ message: 'Error updating donation', error: err });
+    }
+};
+
+
+exports.getDonationsNoImpact = async (req, res) => {
+    try {
+        const donations = await Donation.getDonationsNoImpact();
+        res.status(200).json(donations);
+    } catch (error) {
+        console.error('Error fetching donations with null impact:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
